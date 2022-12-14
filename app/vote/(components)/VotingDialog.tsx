@@ -2,6 +2,7 @@
 import { useNotification } from '@/(shared)/(hooks)/useNotification'
 import { useVoteRecord } from '@/(shared)/(hooks)/useVoteRecord'
 import { Dialog, Transition } from '@headlessui/react'
+import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useConfettiClick } from '@hooks/useClickConfetti'
 import classNames from 'classnames'
 import Image from 'next/image'
@@ -86,10 +87,7 @@ const VotingDialog: FC<Props> = ({ work, closeDialog }) => {
       <Dialog
         as="div"
         className="relative z-10"
-        onClose={() => {
-          closeDialog()
-          setInputComment('')
-        }}
+        onClose={closeDialog}
         open={open}
       >
         <Transition.Child
@@ -125,6 +123,12 @@ const VotingDialog: FC<Props> = ({ work, closeDialog }) => {
                     <div className="z-10 h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
                   </div>
                 )}
+                <div
+                  className="absolute top-3 right-3 z-20 h-8 w-8 cursor-pointer"
+                  onClick={closeDialog}
+                >
+                  <XMarkIcon />
+                </div>
                 <figure className="mx-auto mb-6 block">
                   <Image
                     src={work.mainImage.src}
