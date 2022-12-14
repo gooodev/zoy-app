@@ -7,6 +7,7 @@ const nextConfig = {
   images: {
     domains: ['www.zerorenovation.com']
   },
+  // basePath: '/app',
   experimental: {
     appDir: true,
     scrollRestoration: true,

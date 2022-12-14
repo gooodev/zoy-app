@@ -1,6 +1,6 @@
 import fs from "fs/promises";
+import * as ImageSize from 'image-size';
 import jsdom from "jsdom";
-
 const {
     KINTONE_DOMAIN,
     KINTONE_APP_ID,
@@ -36,9 +36,10 @@ const storePicture = async (blob, id) => {
     const arrayBuffer = await blob.arrayBuffer();
     const ext = calcFileExtension(blob.type);
     const buffer = Buffer.from(arrayBuffer);
+    const dimension = ImageSize.imageSize(buffer);
     const imagePath = `/images/${NEXT_PUBLIC_YEAR}/${id}.${ext}`;
     await fs.writeFile(`${process.cwd()}/public/${imagePath}`, buffer);
-    return imagePath;
+    return { src: imagePath, height: dimension.height, width: dimension.width };
 }
 
 const parseResourceTsv = async () => {
@@ -99,14 +100,14 @@ const main = async () => {
         try {
             const workRecord = await fetchWorkRecord(work.id);
             const pictureBlob = await fetchFileBlob(workRecord.mainPictureKey);
-            const imagePath = await storePicture(pictureBlob, work.id);
+            const image = await storePicture(pictureBlob, work.id);
             const user = users.find(v => v.code === workRecord.designerCode)
             const avatarSrc = await fetchAvatarSrc(user.url);
             workList.push({
                 id: work.id,
                 comment: work.comment,
                 title: workRecord.title,
-                mainImageSrc: imagePath,
+                mainImage: image,
                 workUrl: `https://${KINTONE_DOMAIN}/k/${KINTONE_APP_ID}/show#record=${work.id}`,
                 designer: {
                     name: user.name,

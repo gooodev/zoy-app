@@ -8,3 +8,8 @@ export const fetchWorks = async (year: number) => {
   const jsonData = await fsPromises.readFile(jsonPath)
   return JSON.parse(jsonData.toString()) as Work[]
 }
+
+export const fetchWorkById = async (year: number, id: string) => {
+  const works = await fetchWorks(year)
+  return works.find((v) => v.id === id)
+}

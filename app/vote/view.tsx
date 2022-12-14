@@ -1,11 +1,11 @@
 'use client'
 import { useAuth } from '@/(shared)/(hooks)/useAuth'
 import { useVoteRecord } from '@/(shared)/(hooks)/useVoteRecord'
+import Loading from '@/loading'
 import classNames from 'classnames'
-import { createRef, useCallback, useState } from 'react'
+import { createRef, Suspense, useCallback, useState } from 'react'
 import { Work } from '~/types/Work'
 import SigninDialog from './(components)/SigninDialog'
-import VotingButton from './(components)/VoteButton'
 import VotingCard from './(components)/VotingCard'
 import VotingDialog from './(components)/VotingDialog'
 
@@ -18,7 +18,7 @@ const PageView = ({ works }: Props) => {
   const [selectedWork, setSelectedWork] = useState<Work | null>(null)
   const [isOpenSigninDialog, setOpenSigninDialog] = useState<boolean>(false)
   const { authState } = useAuth()
-  const { isVotedWork } = useVoteRecord()
+  const { isVotedWork, voteCount } = useVoteRecord()
 
   const handleClickVotingButton = useCallback(
     (work: Work) => () => {
@@ -36,8 +36,8 @@ const PageView = ({ works }: Props) => {
       <div
         className={classNames('bg-base-100', 'sticky top-0 z-10 w-full py-5')}
       >
-        <p className="mr-10 text-right text-xs text-pink-500 md:text-sm lg:text-lg">
-          {`現在の投票数：1 / 3`}
+        <p className="mr-10 text-right text-sm text-pink-500 lg:text-lg">
+          {`現在の投票数：${voteCount} / ${process.env.NEXT_PUBLIC_MAX_VOTE_COUNT}`}
         </p>
       </div>
       <article
@@ -50,13 +50,8 @@ const PageView = ({ works }: Props) => {
           <div key={`work-${work.id}`} className="center mb-3">
             <VotingCard
               work={work}
-              buttonElement={
-                <VotingButton
-                  className="py-2"
-                  isVoted={isVotedWork(work)}
-                  onClick={handleClickVotingButton(work)}
-                />
-              }
+              isVoted={isVotedWork(work)}
+              onClick={handleClickVotingButton(work)}
             />
           </div>
         ))}
@@ -65,10 +60,12 @@ const PageView = ({ works }: Props) => {
         open={isOpenSigninDialog}
         closeDialog={() => setOpenSigninDialog(false)}
       />
-      <VotingDialog
-        work={selectedWork}
-        closeDialog={() => setSelectedWork(null)}
-      />
+      <Suspense fallback={<Loading />}>
+        <VotingDialog
+          work={selectedWork}
+          closeDialog={() => setSelectedWork(null)}
+        />
+      </Suspense>
     </section>
   )
 }

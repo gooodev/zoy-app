@@ -2,7 +2,11 @@ export type Work = {
   id: string
   title: string
   comment: string
-  mainImageSrc: string
+  mainImage: {
+    src: string
+    height: number
+    width: number
+  }
   workUrl: string
   designer: {
     name: string

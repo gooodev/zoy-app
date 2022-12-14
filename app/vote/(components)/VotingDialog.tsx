@@ -41,29 +41,40 @@ const VotingDialog: FC<Props> = ({ work, closeDialog }) => {
       if (!work) {
         return
       }
-      if (voteRecord == null) {
-        setLoading(true)
-        await explode()
-        await pushVoteRecord({ workId: work.id, comment: inputComment || '' })
+      try {
+        if (voteRecord == null) {
+          setLoading(true)
+          await explode()
+          await pushVoteRecord({ workId: work.id, comment: inputComment || '' })
+          notify('投票完了！')
+        }
+      } catch (e: unknown) {
+        if (e instanceof Error) {
+          notify(e.message, 'error')
+        }
+      } finally {
         setLoading(false)
-        notify('投票完了！')
-      } else {
-        setLoading(true)
-        await deleteVoteRecord(work.id)
-        setLoading(false)
-        notify('投票を取り消しました。')
       }
     },
-    [
-      work,
-      voteRecord,
-      explode,
-      pushVoteRecord,
-      inputComment,
-      notify,
-      deleteVoteRecord,
-    ]
+    [work, voteRecord, explode, pushVoteRecord, inputComment, notify]
   )
+
+  const handleClickRemove = useCallback(async () => {
+    if (!work) {
+      return
+    }
+    try {
+      setLoading(true)
+      await deleteVoteRecord(work.id)
+      notify('投票を取り消しました。')
+    } catch (e) {
+      if (e instanceof Error) {
+        notify(e.message, 'error')
+      }
+    } finally {
+      setLoading(false)
+    }
+  }, [deleteVoteRecord, notify, work])
 
   if (work == null) {
     return null
@@ -102,7 +113,7 @@ const VotingDialog: FC<Props> = ({ work, closeDialog }) => {
               <Dialog.Panel
                 className={classNames(
                   'max-h-[650px] w-[70vw] min-w-[375px] max-w-lg',
-                  'transform overflow-hidden rounded-2xl bg-white p-8 text-left align-middle shadow-xl transition-all'
+                  'transform overflow-y-scroll rounded-2xl bg-white p-8 text-left align-middle shadow-xl transition-all'
                 )}
               >
                 {loading && (
@@ -110,19 +121,27 @@ const VotingDialog: FC<Props> = ({ work, closeDialog }) => {
                     <div className="z-10 h-8 w-8 animate-spin rounded-full border-4 border-blue-500 border-t-transparent"></div>
                   </div>
                 )}
-                <Dialog.Title className="mb-4 w-full text-left text-xl font-bold">
-                  {work.title}
-                </Dialog.Title>
                 <figure className="mx-auto mb-6 block">
                   <Image
-                    src={work.mainImageSrc}
+                    src={work.mainImage.src}
                     alt={work.title}
                     width={300}
                     height={200}
                     className="w-full rounded-md"
                   />
                 </figure>
-
+                <Dialog.Title className="mb-4 w-full text-left text-xl font-bold">
+                  {work.title}
+                </Dialog.Title>
+                <p className="mb-2">{work.comment}</p>
+                <a
+                  target="_blank"
+                  rel="noreferrer"
+                  href={work.workUrl}
+                  className="mb-3 inline-block text-blue-400"
+                >
+                  kintone 詳細ページへ &gt;
+                </a>
                 <form onSubmit={handleClickVotingButton}>
                   <div className="mb-4">
                     <label
@@ -141,7 +160,8 @@ const VotingDialog: FC<Props> = ({ work, closeDialog }) => {
                       }}
                       defaultValue={inputComment}
                       className={classNames(
-                        'min-h-[70px] w-full rounded-sm border-2 border-solid border-gray-400 p-3'
+                        'min-h-[70px] w-full rounded-sm border-2 border-solid border-gray-400 p-3 text-black',
+                        { 'cursor-not-allowed opacity-50': voteRecord != null }
                       )}
                       disabled={voteRecord != null}
                     />
@@ -150,20 +170,23 @@ const VotingDialog: FC<Props> = ({ work, closeDialog }) => {
                     type="submit"
                     isVoted={voteRecord != null}
                     ref={ref}
-                    className="py-2"
+                    className={classNames('py-2', {
+                      'cursor-not-allowed': voteRecord != null,
+                    })}
                   />
-                  {voteRecord != null && (
-                    <button
-                      className={classNames(
-                        'py-2',
-                        'flex w-full justify-center gap-2',
-                        'text-gray-500'
-                      )}
-                    >
-                      取り消す
-                    </button>
-                  )}
                 </form>
+                {voteRecord != null && (
+                  <button
+                    onClick={handleClickRemove}
+                    className={classNames(
+                      'py-2',
+                      'flex w-full justify-center gap-2',
+                      'text-gray-500'
+                    )}
+                  >
+                    取り消す
+                  </button>
+                )}
               </Dialog.Panel>
             </Transition.Child>
           </div>

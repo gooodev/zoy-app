@@ -5,7 +5,10 @@
 // prettier-ignore
 declare module "nextjs-routes" {
   export type Route =
+    | DynamicRoute<"/api/auth/[...nextauth]", { "nextauth": string[] }>
     | StaticRoute<"">
+    | StaticRoute<"/api">
+    | StaticRoute<"/signin">
     | StaticRoute<"/vote">;
 
   interface StaticRoute<Pathname> {

@@ -1,9 +1,16 @@
+import Image from 'next/image'
 export default function Loading() {
   return (
-    <main className="h-screen w-screen">
-      <center>
-        <progress className="h-8 w-8 animate-spin rounded-full border-4 border-blue-200" />
-      </center>
-    </main>
+    <center className="flex h-[var(--main-min-height)]">
+      <figure className="m-auto">
+        <Image
+          src="/zero-logo.png"
+          width={200}
+          height={200}
+          alt="logo"
+          className="m-auto animate-spin"
+        />
+      </figure>
+    </center>
   )
 }
