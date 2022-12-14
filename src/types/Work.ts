@@ -12,4 +12,10 @@ export type Work = {
     name: string
     avatarSrc: string
   }
+  assistants: [
+    {
+      name: string
+      avatarSrc: string
+    }
+  ]
 }

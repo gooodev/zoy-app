@@ -15,11 +15,12 @@ const fetchWorkRecord = async (workId) => {
         }
     });
     const { record } = await res.json();
-    const { title, designAssignees, mainPicture } = record;
+    const { title, designAssignees, mainPicture, supportAssistant } = record;
     return {
         title: title.value,
         designerCode: designAssignees.value[0].code,
-        mainPictureKey: mainPicture.value[0].fileKey
+        mainPictureKey: mainPicture.value[0].fileKey,
+        assistantCodes: supportAssistant?.value?.map(v => v.code) || [],
     }
 }
 
@@ -101,8 +102,17 @@ const main = async () => {
             const workRecord = await fetchWorkRecord(work.id);
             const pictureBlob = await fetchFileBlob(workRecord.mainPictureKey);
             const image = await storePicture(pictureBlob, work.id);
-            const user = users.find(v => v.code === workRecord.designerCode)
-            const avatarSrc = await fetchAvatarSrc(user.url);
+            const designer = users.find(v => v.code === workRecord.designerCode)
+            const designerAvatarSrc = await fetchAvatarSrc(designer.url);
+            const assistantsPromise = workRecord.assistantCodes.map(async (v) => {
+                const assistant = users.find(u => u.code === v);
+                const avatarSrc = await fetchAvatarSrc(assistant.url);
+                return {
+                    name: assistant.name,
+                    avatarSrc,
+                }
+            });
+            const assistants = await Promise.all(assistantsPromise);
             workList.push({
                 id: work.id,
                 comment: work.comment,
@@ -110,9 +120,10 @@ const main = async () => {
                 mainImage: image,
                 workUrl: `https://${KINTONE_DOMAIN}/k/${KINTONE_APP_ID}/show#record=${work.id}`,
                 designer: {
-                    name: user.name,
-                    avatarSrc
-                }
+                    name: designer.name,
+                    avatarSrc: designerAvatarSrc
+                },
+                assistants
             });
         } catch (e) {
             console.error("===========");

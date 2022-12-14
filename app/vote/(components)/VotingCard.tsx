@@ -3,7 +3,6 @@ import classNames from 'classnames'
 import Image from 'next/image'
 import { FC } from 'react'
 import { Work } from '~/types/Work'
-import { Avatar } from './Avatar'
 
 type Props = {
   work: Work
@@ -42,8 +41,8 @@ export const VotingCard: FC<Props> = ({
         />
       )}
     </figure>
-    <div className={classNames('card-body', 'h-28', 'p-5', 'pt-4')}>
-      <div className="flex items-center gap-2">
+    <div className={classNames('h-24', 'px-6', 'py-6')}>
+      <div className="flex h-full items-center">
         <h2
           className={classNames(
             'card-title',
@@ -53,15 +52,7 @@ export const VotingCard: FC<Props> = ({
         >
           {title}
         </h2>
-        <div className="stack gap-1">
-          <Avatar className="h-12 w-12" src={avatarSrc} alt={name} />
-          <p className="text-center text-xs">{name}</p>
-        </div>
       </div>
-      {/* <p className="overflow-y-scroll text-[0.95rem]">
-        {comment.replaceAll('\\n', '')}
-      </p> */}
-      {/* <div className="card-actions gap-5">{buttonElement}</div> */}
     </div>
   </div>
 )

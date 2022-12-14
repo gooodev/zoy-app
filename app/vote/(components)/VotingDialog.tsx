@@ -15,6 +15,7 @@ import {
   useState,
 } from 'react'
 import { Work } from '~/types/Work'
+import { Avatar } from './Avatar'
 import VotingButton from './VoteButton'
 
 type Props = {
@@ -85,7 +86,10 @@ const VotingDialog: FC<Props> = ({ work, closeDialog }) => {
       <Dialog
         as="div"
         className="relative z-10"
-        onClose={closeDialog}
+        onClose={() => {
+          closeDialog()
+          setInputComment('')
+        }}
         open={open}
       >
         <Transition.Child
@@ -133,15 +137,34 @@ const VotingDialog: FC<Props> = ({ work, closeDialog }) => {
                 <Dialog.Title className="mb-4 w-full text-left text-xl font-bold">
                   {work.title}
                 </Dialog.Title>
-                <p className="mb-2">{work.comment}</p>
-                <a
-                  target="_blank"
-                  rel="noreferrer"
-                  href={work.workUrl}
-                  className="mb-3 inline-block text-blue-400"
-                >
-                  kintone 詳細ページへ &gt;
-                </a>
+                <p>{work.comment}</p>
+                <div className="flex justify-between">
+                  <a
+                    target="_blank"
+                    rel="noreferrer"
+                    href={work.workUrl}
+                    className="my-auto inline-block text-blue-400"
+                  >
+                    kintone 詳細ページへ &gt;
+                  </a>
+                  <div className="mr-6 flex gap-4">
+                    {[work.designer, ...work.assistants].map((v) => {
+                      return (
+                        <div
+                          key={`${work.id}-${v.avatarSrc}`}
+                          className="flex flex-col items-center gap-1"
+                        >
+                          <Avatar
+                            className="h-16 w-16"
+                            src={v.avatarSrc}
+                            alt={v.name}
+                          />
+                          <p className="text-sm">{v.name}</p>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
                 <form onSubmit={handleClickVotingButton}>
                   <div className="mb-4">
                     <label
@@ -158,7 +181,7 @@ const VotingDialog: FC<Props> = ({ work, closeDialog }) => {
                           setInputComment(e.target.value)
                         }
                       }}
-                      defaultValue={inputComment}
+                      defaultValue={voteRecord?.comment}
                       className={classNames(
                         'min-h-[70px] w-full rounded-sm border-2 border-solid border-gray-400 p-3 text-black',
                         { 'cursor-not-allowed opacity-50': voteRecord != null }
