@@ -11,11 +11,7 @@ type Props = {
 }
 
 export const VotingCard: FC<Props> = ({
-  work: {
-    title,
-    mainImage,
-    designer: { avatarSrc, name },
-  },
+  work: { title, mainImage },
   isVoted,
   onClick,
 }) => (

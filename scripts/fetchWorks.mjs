@@ -18,9 +18,11 @@ const fetchWorkRecord = async (workId) => {
     const { title, designAssignees, mainPicture, supportAssistant } = record;
     return {
         title: title.value,
-        designerCode: designAssignees.value[0].code,
+        designerCodes: [
+            ...(designAssignees.value?.map(v => v.code) || []),
+            ...(supportAssistant?.value?.map(v => v.code) || [])
+        ],
         mainPictureKey: mainPicture.value[0].fileKey,
-        assistantCodes: supportAssistant?.value?.map(v => v.code) || [],
     }
 }
 
@@ -102,28 +104,22 @@ const main = async () => {
             const workRecord = await fetchWorkRecord(work.id);
             const pictureBlob = await fetchFileBlob(workRecord.mainPictureKey);
             const image = await storePicture(pictureBlob, work.id);
-            const designer = users.find(v => v.code === workRecord.designerCode)
-            const designerAvatarSrc = await fetchAvatarSrc(designer.url);
-            const assistantsPromise = workRecord.assistantCodes.map(async (v) => {
-                const assistant = users.find(u => u.code === v);
-                const avatarSrc = await fetchAvatarSrc(assistant.url);
+            const designersPromise = workRecord.designerCodes.map(async (v) => {
+                const designer = users.find(u => u.code === v);
+                const avatarSrc = await fetchAvatarSrc(designer.url);
                 return {
-                    name: assistant.name,
+                    name: designer.name,
                     avatarSrc,
                 }
-            });
-            const assistants = await Promise.all(assistantsPromise);
+            })
+            const designers = await Promise.all(designersPromise);
             workList.push({
                 id: work.id,
                 comment: work.comment,
                 title: workRecord.title,
                 mainImage: image,
                 workUrl: `https://${KINTONE_DOMAIN}/k/${KINTONE_APP_ID}/show#record=${work.id}`,
-                designer: {
-                    name: designer.name,
-                    avatarSrc: designerAvatarSrc
-                },
-                assistants
+                designers
             });
         } catch (e) {
             console.error("===========");

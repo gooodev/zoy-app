@@ -141,7 +141,9 @@ const VotingDialog: FC<Props> = ({ work, closeDialog }) => {
                 <Dialog.Title className="mb-4 w-full text-left text-xl font-bold">
                   {work.title}
                 </Dialog.Title>
-                <p>{work.comment}</p>
+                <p className="whitespace-pre-wrap">
+                  {work.comment.replaceAll('\\n', '\n')}
+                </p>
                 <div className="flex justify-between">
                   <a
                     target="_blank"
@@ -152,7 +154,7 @@ const VotingDialog: FC<Props> = ({ work, closeDialog }) => {
                     kintone 詳細ページへ &gt;
                   </a>
                   <div className="mr-6 flex gap-4">
-                    {[work.designer, ...work.assistants].map((v) => {
+                    {work.designers.map((v) => {
                       return (
                         <div
                           key={`${work.id}-${v.avatarSrc}`}

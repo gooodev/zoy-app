@@ -8,14 +8,8 @@ export type Work = {
     width: number
   }
   workUrl: string
-  designer: {
+  designers: {
     name: string
     avatarSrc: string
-  }
-  assistants: [
-    {
-      name: string
-      avatarSrc: string
-    }
-  ]
+  }[]
 }
