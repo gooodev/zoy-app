@@ -4,10 +4,12 @@ import { useVoteRecord } from '@/(shared)/(hooks)/useVoteRecord'
 import Loading from '@/loading'
 import classNames from 'classnames'
 import { createRef, Suspense, useCallback, useState } from 'react'
+import { isVotingTerm } from '~/libs/isVotingTerm'
 import { Work } from '~/types/Work'
 import SigninDialog from './(components)/SigninDialog'
 import VotingCard from './(components)/VotingCard'
 import VotingDialog from './(components)/VotingDialog'
+import VotingFinishDialog from './(components)/VotingFinishDialog'
 
 type Props = {
   works: Work[]
@@ -61,10 +63,17 @@ const PageView = ({ works }: Props) => {
         closeDialog={() => setOpenSigninDialog(false)}
       />
       <Suspense fallback={<Loading />}>
-        <VotingDialog
-          work={selectedWork}
-          closeDialog={() => setSelectedWork(null)}
-        />
+        {isVotingTerm() ? (
+          <VotingDialog
+            work={selectedWork}
+            closeDialog={() => setSelectedWork(null)}
+          />
+        ) : (
+          <VotingFinishDialog
+            open={selectedWork != null}
+            closeDialog={() => setSelectedWork(null)}
+          />
+        )}
       </Suspense>
     </section>
   )

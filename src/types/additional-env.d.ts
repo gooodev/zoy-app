@@ -13,6 +13,7 @@ declare namespace NodeJS {
     // Firebase Server
     FIREBASE_PRIVATE_KEY: string
     FIREBASE_CLIENT_EMAIL: string
+    NEXT_PUBLIC_VOTING_END_DATE: string
     [key: string]: never
   }
 }
